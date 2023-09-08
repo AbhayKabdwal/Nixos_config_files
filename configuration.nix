@@ -8,7 +8,14 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      <home-manager/nixos>
     ];
+
+  nixpkgs.overlays = [
+    (self: super: {
+      fcitx-engines = pkgs.fcitx5;
+    })
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -82,12 +89,21 @@
   users.users.legion = {
     isNormalUser = true;
     description = "legion";
+    # defaultUserShell = pkgs.fish;
+    shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      firefox
-      kate
-    #  thunderbird
+    	firefox
+    	kate
     ];
+  };
+  environment.shells = with pkgs; [ fish ];
+  programs.fish.enable = true;
+
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.legion = import ./home.nix;
   };
 
   # Allow unfree packages
@@ -96,14 +112,26 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-	telegram-desktop
+    #  wget
+    discord
+    fcitx5
+    gcc-unwrapped
 	git
-	vlc
-	thunderbird
-	obs-studio
+	libsForQt5.kdenlive
 	libsForQt5.kdeconnect-kde
+	micro
+	microsoft-edge
+	ntfs3g
+	obs-studio
+	python311
+	python311Packages.pytube
+	telegram-desktop
+	thunderbird
+	vim
+	vlc
+	vscode
+	whatsapp-for-linux
+	xfce.xfconf
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -117,11 +145,11 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
+   services.openssh.enable = true;
+   services.qemuGuest.enable = true;
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  # networking.firewall.allowedTCPPorts = [ 1714:1764 ];
+  # networking.firewall.allowedUDPPorts = [ 1714:1764 ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
@@ -133,4 +161,11 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 
+	nixpkgs.config.permittedInsecurePackages = [
+	"python-2.7.18.6"
+	];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+
 }
+
